@@ -9,8 +9,11 @@ gsap.registerPlugin(ScrollToPlugin);
 const array = new Array(8).fill(0);
 
 function App() {
+  const wrapper = useRef(null);
+  const content = useRef(null);
   const [images, setImages] = useState([]);
-  const element = useRef(null);
+  const [isPressed, setIsPressed] = useState(false);
+  const [startx, setStartX] = useState(0);
 
   useEffect(() => {
     const getImages = async () => {
@@ -29,16 +32,71 @@ function App() {
     getImages();
   }, []);
 
-  const handleScroll = (event) => {
-    const width = 931; // image with ".content .box"
+  const handleScroll = (event, type) => {
+    const inner = event.clientX / 2;
 
-    gsap.to(element.current, {
-      duration: 2,
-      scrollTo: {
-        x: event === "right" ? `+=${width}` : `-=${width}`,
-      },
+    console.log(inner);
+
+    if (parseInt(content.current.style.left) === 0 && type === "left") return;
+
+    gsap.to(content.current, {
+      left: type === "right" ? `-=${inner}` : `+=${inner}`,
       ease: "power.out",
     });
+
+    checkBoundary();
+  };
+
+  const handleMouseDown = (event) => {
+    event.preventDefault();
+
+    wrapper.current.style.cursor = "grabbing";
+    setIsPressed(true);
+    setStartX(event.clientX - content.current.getBoundingClientRect().left);
+  };
+
+  const handleMouseEnter = (event) => {
+    event.preventDefault();
+
+    setIsPressed(false);
+    wrapper.current.style.cursor = "grab";
+  };
+
+  const handleMouseUp = (event) => {
+    event.preventDefault();
+
+    setIsPressed(false);
+    wrapper.current.style.cursor = "grab";
+  };
+
+  const handleMouseMove = (event) => {
+    event.preventDefault();
+
+    if (!isPressed) return;
+
+    gsap.to(content.current, {
+      left: event.clientX - startx,
+      ease: "power.out",
+    });
+
+    checkBoundary();
+  };
+
+  const checkBoundary = () => {
+    const outer = wrapper.current.getBoundingClientRect();
+    const inner = content.current.getBoundingClientRect();
+
+    if (parseInt(content.current.style.left) > 0) {
+      gsap.to(content.current, {
+        left: 0,
+        ease: "power.out",
+      });
+    } else if (inner.right < outer.right) {
+      gsap.to(content.current, {
+        left: -inner.width + outer.width,
+        ease: "power.out",
+      });
+    }
   };
 
   if (images.length === 0) {
@@ -47,11 +105,21 @@ function App() {
 
   return (
     <>
-      <div className="wrapper">
-        <div className="arrow left" onClick={() => handleScroll("left")}>
+      <div
+        className="wrapper"
+        ref={wrapper}
+        onMouseDown={handleMouseDown}
+        onMouseEnter={handleMouseEnter}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+      >
+        <div
+          className="arrow left"
+          onClick={(event) => handleScroll(event, "left")}
+        >
           <img src={arrow} alt="arrow left" />
         </div>
-        <div className="content" ref={element}>
+        <div className="content" ref={content}>
           {images.map((image, index) => (
             <div className="box" key={index}>
               <div
@@ -62,7 +130,10 @@ function App() {
             </div>
           ))}
         </div>
-        <div className="arrow right" onClick={() => handleScroll("right")}>
+        <div
+          className="arrow right"
+          onClick={(event) => handleScroll(event, "right")}
+        >
           <img src={arrow} alt="arrow right" />
         </div>
       </div>
