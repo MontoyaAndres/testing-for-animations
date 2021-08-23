@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        margin-top: 100px;
+      }
+
+      .group {
+        position: relative;
+        width: 300px;
+      }
+
+      .group input {
+        display: block;
+        font-size: 18px;
+        padding: 10px 10px 10px 5px;
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #757575;
+        box-sizing: border-box;
+      }
+
+      .group input:focus {
+        outline: none;
+      }
+
+      .group label {
+        position: absolute;
+        left: 5px;
+        top: 10px;
+        color: #999;
+        font-size: 18px;
+        font-weight: normal;
+        pointer-events: none;
+        transition: 0.2s ease all;
+      }
+
+      .group input:focus ~ label,
+      .group input:valid ~ label {
+        top: -20px;
+        font-size: 14px;
+        color: #5264ae;
+      }
+
+      .group .bar {
+        position: relative;
+        display: block;
+        width: 100%;
+      }
+
+      .group .bar:before,
+      .group .bar:after {
+        content: "";
+        position: absolute;
+        bottom: 1px;
+        height: 2px;
+        width: 0;
+        background: #5264ae;
+        transition: 0.2s ease all;
+      }
+
+      .group .bar:before {
+        left: 50%;
+      }
+
+      .group .bar:after {
+        right: 50%;
+      }
+
+      .group input:focus ~ .bar:before,
+      .group input:focus ~ .bar:after {
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="group">
+      <input type="text" required="" />
+      <span class="bar"></span>
+      <label>Name</label>
+    </div>
+  </body>
+</html>
